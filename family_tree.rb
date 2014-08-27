@@ -11,39 +11,42 @@ def menu
   puts "\nWhat would you like to do?"
 
   loop do
-    puts "\nPress a to add a family member"
-    puts 'Press l to list out the family members'
-    puts 'Press m to add the spouse'
-    puts 'Press s to see the spouse'
-    puts 'Press p to add parent(s)'
-    puts 'Press c to see parent(s)'
-    puts 'Press r to see child(ren)'
-    puts 'Press g to see grandparent(s)'
-    puts 'Press b to see sibling(s)'
-    puts 'Press x to exit'
+    puts "\nPress  1 to add a family member"
+    puts 'Press  2 to list out the family members'
+    puts 'Press  3 to add the spouse'
+    puts 'Press  4 to see the spouse'
+    puts 'Press  5 to add parent(s)'
+    puts 'Press  6 to see parent(s)'
+    puts 'Press  7 to see child(ren)'
+    puts 'Press  8 to see grandparent(s)'
+    puts 'Press  9 to see grandchild(ren)'
+    puts 'Press 10 to see sibling(s)'
+    puts 'Press  0 to exit'
     choice = gets.chomp
 
     case choice
-    when 'a'
+    when '1'
       add_person
-    when 'l'
+    when '2'
       list_people
-    when 'm'
+    when '3'
       add_marriage
-    when 's'
+    when '4'
       show_marriage
-    when 'p'
+    when '5'
       add_parents
-    when 'c'
+    when '6'
       show_parents
-    when 'r'
+    when '7'
       show_children
-    when 'b'
-      show_siblings
-    when 'g'
+    when '8'
       show_grandparents
-    when 'x'
-      puts "\nThanks for looking at the family tree!\n"
+    when '9'
+      show_grandchildren
+    when '10'
+      show_siblings
+    when '0'
+      puts "\nThanks for looking at the family tree!\n\n"
       exit
     else
       puts "\nInvalid input, try again\n"
@@ -141,9 +144,8 @@ def show_marriage
   person_id = gets.chomp
   if valid_index?(person_id)
     person = Person.find(person_id)
-    spouse = Person.find(person.spouse_id)
-    if spouse != nil
-      puts person.name + " is married to " + spouse.name + "\n\n"
+    if person.spouse_id != nil
+      puts person.name + " is married to " + person.spouse.name + "\n"
     else
       puts person.name + " is not married\n\n"
     end
@@ -155,7 +157,7 @@ end
 
 def show_parents
   list_people
-  puts "\nEnter the number of the person and I'll show you their parents"
+  puts "\nEnter the number of the person and I'll show you their parent(s)"
   child_id = ""
   child_id = gets.chomp
   if valid_index?(child_id)
@@ -180,16 +182,16 @@ end
 
 def show_children
   list_people
-  puts "\nEnter the number of the person and I'll show you their children"
+  puts "\nEnter the number of the person and I'll show you their child(ren)"
   parent_id = ""
   parent_id = gets.chomp
   if valid_index?(parent_id)
-    parent= Person.find(parent_id)
+    parent = Person.find(parent_id)
     children_array = parent.children
     if children_array.empty?
       puts "#{parent.name} has no children\n\n"
     elsif children_array.length == 1
-      puts "#{parent.name}'s child is #{children_array.first.name}\n\n"
+      puts "#{parent.name}'s child is #{children_array.first.name}\n"
     else
       puts "#{parent.name}'s children are:"
       children_array.each do |child|
@@ -281,6 +283,47 @@ def show_grandparents
     else
       puts "#{the_person.name} has no parents in the database"
       puts "You may need to add one or more people\n"
+    end
+  else
+   puts "No person was identified; you need to enter a valid number"
+   puts "You may need to add a person\n"
+  end
+end
+
+def show_grandchildren
+  list_people
+  puts "\nEnter the number of the person and I'll show you their grandchild(ren)"
+  parent_id = ""
+  parent_id = gets.chomp
+  if valid_index?(parent_id)
+    parent = Person.find(parent_id)
+    children_array = parent.children
+    if !children_array.empty?
+      grandchildren_array = []
+      children_array.each do |child|
+        child_children_array = child.children
+        if !child_children_array.empty?
+          child_children_array.each do |grandchild|
+            grandchildren_array << grandchild
+          end
+        end
+      end
+      if !grandchildren_array.empty?
+        if grandchildren_array.length == 1
+          plural = "grandchild"
+        else
+          plural = "grandchildren"
+        end
+        puts "\nThe #{plural} of #{parent.name}"
+        grandchildren_array.each do |grandchild|
+          puts "#{grandchild.name}"
+        end
+        puts "\n"
+      else
+        puts "#{parent.name} has no grandchildren\n"
+      end
+    else
+      puts "#{parent.name} has no children\n"
     end
   else
    puts "No person was identified; you need to enter a valid number"
